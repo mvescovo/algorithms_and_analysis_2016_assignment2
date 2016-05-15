@@ -41,6 +41,7 @@ public class RecursiveBacktrackerGenerator implements MazeGenerator {
         // Visit every cell in the maze to ensure a perfect maze
         while (numCellsUnvisited > 0) {
             while (thereAreUnvisitedNeighbors) {
+
                 // List all unvisited neighbors
                 ArrayList<Integer> unvisitedNeighbors = new ArrayList<>();
                 for (int i = 0; i < Maze.NUM_DIR; i++) {
@@ -71,6 +72,7 @@ public class RecursiveBacktrackerGenerator implements MazeGenerator {
             if (previousCell.size() > 0) {
                 currentCell = previousCell.pop();
             }
+
             // Assume unvisited neighbors at the previous cell
             thereAreUnvisitedNeighbors = true;
         }
@@ -93,10 +95,8 @@ public class RecursiveBacktrackerGenerator implements MazeGenerator {
      * @param cell The cell being checked.
      * @return True if in the maze. Otherwise false.
      */
-    protected boolean isIn(Cell cell) {
-        if (cell == null)
-            return false;
-        return isIn(cell.r, cell.c);
+    private boolean isIn(Cell cell) {
+        return cell != null && isIn(cell.r, cell.c);
     }
 
 } // end of class RecursiveBacktrackerGenerator
