@@ -3,9 +3,10 @@ package mazeGenerator;
 import maze.Cell;
 import maze.Maze;
 
-import java.util.ArrayList;
-import java.util.Random;
-import java.util.Stack;
+import java.util.*;
+
+import static maze.Maze.HEX;
+import static maze.Maze.NUM_DIR;
 
 /**
  * Generate maze with recursive back tracker algorithm
@@ -23,59 +24,128 @@ public class RecursiveBacktrackerGenerator implements MazeGenerator {
     @Override
     public void generateMaze(Maze maze) {
         mMaze = maze;
-        boolean visited[][] = new boolean[maze.sizeR][maze.sizeC];
-        int numCellsUnvisited = maze.sizeR * maze.sizeC;
+        boolean normalVisited[][] = new boolean[maze.sizeR][maze.sizeC];
+        HashSet<Cell> hexVisited = new HashSet<>();
+        int numNormalCellsUnvisited = maze.sizeR * maze.sizeC;
+        int numHexCellsUnvisited;
         boolean thereAreUnvisitedNeighbors = true;
         int randomNeighbor;
         Stack<Cell> previousCell = new Stack<>();
 
-        // Randomly pick a starting cell
-        int randomRow = mRandGen.nextInt(maze.sizeR);
-        int randomCol = mRandGen.nextInt(maze.sizeC);
-        Cell currentCell = maze.map[randomRow][randomCol];
+        if (maze.type == Maze.NORMAL) {
 
-        // Mark starting cell as visited
-        visited[currentCell.r][currentCell.c] = true;
-        numCellsUnvisited--;
+            // Randomly pick a starting cell
+            int randomRow = mRandGen.nextInt(maze.sizeR);
+            int randomCol = mRandGen.nextInt(maze.sizeC);
+            Cell currentCell = maze.map[randomRow][randomCol];
 
-        // Visit every cell in the maze to ensure a perfect maze
-        while (numCellsUnvisited > 0) {
-            while (thereAreUnvisitedNeighbors) {
+            // Mark starting cell as visited
+            normalVisited[currentCell.r][currentCell.c] = true;
+            numNormalCellsUnvisited--;
 
-                // List all unvisited neighbors
-                ArrayList<Integer> unvisitedNeighbors = new ArrayList<>();
-                for (int i = 0; i < Maze.NUM_DIR; i++) {
-                    Cell currentNeighbor = currentCell.neigh[i];
-                    if ((isIn(currentNeighbor)) && (!visited[currentNeighbor.r][currentNeighbor.c])) {
-                        unvisitedNeighbors.add(i);
+            // Visit every cell in the maze to ensure a perfect maze
+            while (numNormalCellsUnvisited > 0) {
+                while (thereAreUnvisitedNeighbors) {
+
+                    // List all unvisited neighbors
+                    ArrayList<Integer> unvisitedNeighbors = new ArrayList<>();
+                    for (int i = 0; i < NUM_DIR; i++) {
+                        Cell currentNeighbor = currentCell.neigh[i];
+                        if ((isIn(currentNeighbor)) && (!normalVisited[currentNeighbor.r][currentNeighbor.c])) {
+                            unvisitedNeighbors.add(i);
+                        }
+                    }
+
+                    // Randomly pick an unvisited neighbour
+                    if (unvisitedNeighbors.size() > 0) {
+                        randomNeighbor = unvisitedNeighbors.get(mRandGen.nextInt(unvisitedNeighbors.size()));
+
+                        // Carve a path and move to the random unvisited neighbor
+                        currentCell.wall[randomNeighbor].present = false;
+                        previousCell.add(currentCell);
+                        currentCell = currentCell.neigh[randomNeighbor];
+
+                        // Mark the new current cell as visited
+                        normalVisited[currentCell.r][currentCell.c] = true;
+                        numNormalCellsUnvisited--;
+                    } else {
+                        thereAreUnvisitedNeighbors = false;
                     }
                 }
 
-                // Randomly pick an unvisited neighbour
-                if (unvisitedNeighbors.size() > 0) {
-                    randomNeighbor = unvisitedNeighbors.get(mRandGen.nextInt(unvisitedNeighbors.size()));
+                // Backtrack to the previous cell
+                if (previousCell.size() > 0) {
+                    currentCell = previousCell.pop();
+                }
 
-                    // Carve a path and move to the random unvisited neighbor
-                    currentCell.wall[randomNeighbor].present = false;
-                    previousCell.add(currentCell);
-                    currentCell = currentCell.neigh[randomNeighbor];
+                // Assume unvisited neighbors at the previous cell
+                thereAreUnvisitedNeighbors = true;
+            }
+        } else if (maze.type == Maze.HEX) {
 
-                    // Mark the new current cell as visited
-                    visited[currentCell.r][currentCell.c] = true;
-                    numCellsUnvisited--;
-                } else {
-                    thereAreUnvisitedNeighbors = false;
+            // List valid hex cells in the maze
+            ArrayList<Cell> validCells = new ArrayList<>();
+            for (int i = 0; i < maze.sizeR; i++) {
+                for (int j = (i + 1) / 2; j < maze.sizeC + (i + 1) / 2; j++) {
+                    if (!isIn(i, j))
+                        continue;
+                    validCells.add(mMaze.map[i][j]);
                 }
             }
 
-            // Backtrack to the previous cell
-            if (previousCell.size() > 0) {
-                currentCell = previousCell.pop();
-            }
+            // Set the number of cells still to visit
+            numHexCellsUnvisited = validCells.size();
 
-            // Assume unvisited neighbors at the previous cell
-            thereAreUnvisitedNeighbors = true;
+            // Randomly pick a starting cell
+            Cell currentCell = validCells.get(mRandGen.nextInt(validCells.size()));
+
+            // Mark starting cell as visited
+            hexVisited.add(currentCell);
+            numHexCellsUnvisited--;
+
+            // Visit every cell in the maze to ensure a perfect maze
+            while (numHexCellsUnvisited > 0) {
+                while (thereAreUnvisitedNeighbors) {
+
+                    // List all unvisited neighbors
+                    ArrayList<Integer> unvisitedNeighbors = new ArrayList<>();
+                    for (int i = 0; i < Maze.NUM_DIR; i++) {
+                        Cell currentNeighbor = currentCell.neigh[i];
+                        if ((isIn(currentNeighbor)) && (!hexVisited.contains(currentNeighbor))) {
+                            unvisitedNeighbors.add(i);
+                        }
+                    }
+
+                    // Randomly pick an unvisited neighbour
+                    if (unvisitedNeighbors.size() > 0) {
+                        randomNeighbor = unvisitedNeighbors.get(mRandGen.nextInt(unvisitedNeighbors.size()));
+
+                        // Carve a path and move to the random unvisited neighbor
+                        currentCell.wall[randomNeighbor].present = false;
+                        previousCell.add(currentCell);
+                        currentCell = currentCell.neigh[randomNeighbor];
+
+                        // Mark the new current cell as visited
+                        hexVisited.add(currentCell);
+                        numHexCellsUnvisited--;
+                    } else {
+                        thereAreUnvisitedNeighbors = false;
+                    }
+                }
+
+                // Backtrack to the previous cell
+                if (previousCell.size() > 0) {
+                    currentCell = previousCell.pop();
+                }
+
+                // Assume unvisited neighbors at the previous cell
+                thereAreUnvisitedNeighbors = true;
+            }
+        } else if (maze.type == Maze.TUNNEL) {
+
         }
+
+
     } // end of generateMaze()
 
     /**
@@ -86,7 +156,11 @@ public class RecursiveBacktrackerGenerator implements MazeGenerator {
      * @return weather the cell is in the maze
      */
     private boolean isIn(int row, int column) {
-        return row >= 0 && row < mMaze.sizeR && column >= 0 && column < mMaze.sizeC;
+        if (mMaze.type == HEX) {
+            return row >= 0 && row < mMaze.sizeR && column >= (row + 1) / 2 && column < mMaze.sizeC + (row + 1) / 2;
+        } else {
+            return row >= 0 && row < mMaze.sizeR && column >= 0 && column < mMaze.sizeC;
+        }
     }
 
     /**
