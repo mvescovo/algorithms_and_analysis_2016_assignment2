@@ -34,7 +34,7 @@ public abstract class Maze {
 	public final static int SOUTHEAST = 5;
 	public final static int SOUTH = 5;
 	public final static int NUM_DIR = 6;
-	// used for move along a deriction, for both square and hexagon
+	// used for move along a direction, for both square and hexagon
 	// e.g., the northeast neighbor of map[r][c] would be map[r + deltaR[NORTHEAST][c + deltaC[NORTHEAST]]
 	public final static int deltaR[] = { 0, 1, 1, 0, -1, -1 };
 	public final static int deltaC[] = { 1, 1, 0, -1, -1, 0 };
