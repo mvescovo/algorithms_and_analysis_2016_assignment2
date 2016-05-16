@@ -19,20 +19,20 @@ import java.util.List;
 import java.util.Scanner;
 
 /**
- * 
+ *
  * @author Youhan Xia
  * @author Jeffrey Chan
  *
  * Main class for testing the maze generators and solvers. 
  */
 class MazeTester {
-	
-	/** 
+
+	/**
 	 * Name of class, used in error messages. 
 	 */
 	protected static final String progName = "MazeTester";
 
-	/** 
+	/**
 	 * Standard outstream.
 	 */
 	protected static final PrintStream outStream = System.out;
@@ -58,23 +58,23 @@ class MazeTester {
 			System.err.println("Incorrect number of arguments.");
 			usage(progName);
 		}
-		
+
 		String fName = args[0];
-		
+
 		// flag to indicate whether we visualise maze or not
 		boolean isVisu = false;
 		switch (args[1]) {
-		case "y":
-			isVisu = true;
-			break;
-		case "n":
-			isVisu = false;
-			break;
-		default:
-			System.err.println("Incorrect argument value.");
-			usage(progName);
+			case "y":
+				isVisu = true;
+				break;
+			case "n":
+				isVisu = false;
+				break;
+			default:
+				System.err.println("Incorrect argument value.");
+				usage(progName);
 		}
-		
+
 		// default values for parameters
 		String mazeType = "normal";
 		String mazeGeneratorName = "kruskal";
@@ -86,60 +86,60 @@ class MazeTester {
 		int exitR = 0;
 		int exitC = 1;
 		List<int[]> tunnelList = new ArrayList<int[]>();
-		
+
 		// read input parameter file
 		File fin = new File(fName);
-		
+
 		try {
 			Scanner scanner = new Scanner(fin);
 			mazeType = scanner.next();
-			
+
 			mazeGeneratorName = scanner.next();
 			mazeSolverName = scanner.next();
-			
+
 			rowNum = Integer.parseInt(scanner.next());
 			colNum = Integer.parseInt(scanner.next());
-			
+
 			entR = Integer.parseInt(scanner.next());
 			entC = Integer.parseInt(scanner.next());
 			exitR = Integer.parseInt(scanner.next());
 			exitC = Integer.parseInt(scanner.next());
 
 			// add to list to  tunnels 
-                        while (scanner.hasNext()) {
-                                int temp[]= {Integer.parseInt(scanner.next()), Integer.parseInt(scanner.next()), Integer.parseInt(scanner.next()), Integer.parseInt(scanner.next())};
-                                tunnelList.add(temp);
-                        }
+			while (scanner.hasNext()) {
+				int temp[]= {Integer.parseInt(scanner.next()), Integer.parseInt(scanner.next()), Integer.parseInt(scanner.next()), Integer.parseInt(scanner.next())};
+				tunnelList.add(temp);
+			}
 
 			scanner.close();
 		} catch (FileNotFoundException e) {
 			System.err.println("Input file doesn't exist.");
 			usage(progName);
 		}
-		
+
 		// check rowNum and colNum
 		if (rowNum < 1 || colNum < 1) {
 			System.err.println("Row or column number of maze must be at least 1.");
 			usage(progName);
 		}
-		
+
 		// construct maze object
 		Maze maze = null;
 		switch (mazeType) {
-		case "normal":
-			maze = new NormalMaze();
-			break;
-		case "tunnel":
-			maze = new TunnelMaze();
-			break;
-		case "hex":
-			maze = new HexMaze();
-			break;
-		default:
-			System.err.println("Unknown maze type.");
-			usage(progName);
+			case "normal":
+				maze = new NormalMaze();
+				break;
+			case "tunnel":
+				maze = new TunnelMaze();
+				break;
+			case "hex":
+				maze = new HexMaze();
+				break;
+			default:
+				System.err.println("Unknown maze type.");
+				usage(progName);
 		}
-		
+
 		// initialise maze
 		maze.initMaze(rowNum, colNum, entR, entC, exitR, exitC, tunnelList);
 
@@ -148,22 +148,22 @@ class MazeTester {
 			System.err.println("Incorrect maze entrance or exit position.");
 			usage(progName);
 		}
-		
+
 		// determine which implementation to test
 		MazeGenerator mazeGen = null;
 		switch (mazeGeneratorName) {
-		case "modiPrim":
-			mazeGen = new ModifiedPrimsGenerator();
-			break;
-		case "recurBack":
-			mazeGen = new RecursiveBacktrackerGenerator();
-			break;
-		case "kruskal":
-			mazeGen = new KruskalGenerator();
-			break;
-		default:
-			System.err.println("Unknown maze generator name.");
-			usage(progName);
+			case "modiPrim":
+				mazeGen = new ModifiedPrimsGenerator();
+				break;
+			case "recurBack":
+				mazeGen = new RecursiveBacktrackerGenerator();
+				break;
+			case "kruskal":
+				mazeGen = new KruskalGenerator();
+				break;
+			default:
+				System.err.println("Unknown maze generator name.");
+				usage(progName);
 		}
 
 		outStream.println(mazeGen.getClass().getSimpleName() + " is generating the maze.");
@@ -175,9 +175,9 @@ class MazeTester {
 
 		// check if maze is perfect
 		boolean isPerfectMaze = maze.isPerfect();
-		
+
 		outStream.println("The maze is " + (isPerfectMaze ? "" : "not ") + "perfect!");
-		
+
 		// draw maze (this depends on maze.isVisu)
 		maze.draw();
 
@@ -185,22 +185,22 @@ class MazeTester {
 		if (isPerfectMaze) {
 			MazeSolver mazeSolver = null;
 			switch (mazeSolverName) {
-			case "biDir":
-				mazeSolver = new BiDirectionalBFSSolver();
-				break;
-			case "recurBack":
-				mazeSolver = new RecursiveBacktrackerSolver();
-				break;
-			// sample solver to help you get started
-			case "sample":
-				mazeSolver = new SampleSolver();
-				break;
-			// no solver
-			case "none":
-				break;
-			default:
-				System.err.println("Unknown maze solver name.");
-				usage(progName);
+				case "biDir":
+					mazeSolver = new BiDirectionalBFSSolver();
+					break;
+				case "recurBack":
+					mazeSolver = new RecursiveBacktrackerSolver();
+					break;
+				// sample solver to help you get started
+				case "sample":
+					mazeSolver = new SampleSolver();
+					break;
+				// no solver
+				case "none":
+					break;
+				default:
+					System.err.println("Unknown maze solver name.");
+					usage(progName);
 			}
 
 			if (mazeSolver != null) {
@@ -213,7 +213,7 @@ class MazeTester {
 					outStream.println("Number of cells visited = " + mazeSolver.cellsExplored());
 				} else {
 					outStream.println("Solver was failed!");
-				} 
+				}
 			}
 		}
 	} // end of main()

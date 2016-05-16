@@ -3,7 +3,10 @@ package mazeGenerator;
 import maze.Cell;
 import maze.Maze;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Random;
+import java.util.Stack;
 
 import static maze.Maze.HEX;
 import static maze.Maze.NUM_DIR;
@@ -31,6 +34,7 @@ public class RecursiveBacktrackerGenerator implements MazeGenerator {
         boolean thereAreUnvisitedNeighbors = true;
         int randomNeighbor;
         Stack<Cell> previousCell = new Stack<>();
+        ArrayList<Cell> lockedCells = new ArrayList<>();
 
         if (maze.type == Maze.NORMAL) {
 
@@ -160,26 +164,41 @@ public class RecursiveBacktrackerGenerator implements MazeGenerator {
                     ArrayList<Integer> unvisitedNeighbors = new ArrayList<>();
                     for (int i = 0; i < NUM_DIR; i++) {
                         Cell currentNeighbor = currentCell.neigh[i];
-                        if ((isIn(currentNeighbor)) && (!normalVisited[currentNeighbor.r][currentNeighbor.c])) {
+                        if ((isIn(currentNeighbor)) && (!normalVisited[currentNeighbor.r][currentNeighbor.c])
+                                && (!lockedCells.contains(currentNeighbor))) {
                             unvisitedNeighbors.add(i);
                         }
                     }
+
                     if ((currentCell.tunnelTo != null)
                             && (!normalVisited[currentCell.tunnelTo.r][currentCell.tunnelTo.c])) {
+
                         // Add an extra neighbor position for the tunnel neighbor
                         unvisitedNeighbors.add(6);
                     }
 
                     // Randomly pick an unvisited neighbour
                     if (unvisitedNeighbors.size() > 0) {
-                        randomNeighbor = unvisitedNeighbors.get(mRandGen.nextInt(unvisitedNeighbors.size()));
+                        int randomNeighborIndex = mRandGen.nextInt(unvisitedNeighbors.size());
+                        randomNeighbor = unvisitedNeighbors.get(randomNeighborIndex);
 
                         // Carve a path and move to the random unvisited neighbor
                         if (randomNeighbor != 6) {
+
+                            // Don't go through the tunnel if there is one
+
+                            // Lock the other end of the tunnel if there is one
+                            if (currentCell.tunnelTo != null) {
+                                lockedCells.add(currentCell.tunnelTo);
+                            }
+
+                            // Carve path and move
                             currentCell.wall[randomNeighbor].present = false;
                             previousCell.add(currentCell);
                             currentCell = currentCell.neigh[randomNeighbor];
                         } else {
+
+                            // Go through the tunnel, no need to carve a path
                             previousCell.add(currentCell);
                             currentCell = currentCell.tunnelTo;
                         }
@@ -201,9 +220,6 @@ public class RecursiveBacktrackerGenerator implements MazeGenerator {
                 thereAreUnvisitedNeighbors = true;
             }
         }
-
-        System.out.println("num cells unvsited: " + numNormalCellsUnvisited);
-
     } // end of generateMaze()
 
     /**
@@ -230,7 +246,6 @@ public class RecursiveBacktrackerGenerator implements MazeGenerator {
     private boolean isIn(Cell cell) {
         return cell != null && isIn(cell.r, cell.c);
     }
-
 } // end of class RecursiveBacktrackerGenerator
 
 // until we reach a cell with no unvisited neighbords
