@@ -6,6 +6,8 @@ import maze.Maze;
 import java.util.ArrayList;
 import java.util.Random;
 
+import static maze.Maze.HEX;
+
 /**
  * Generate maze with modified prim's algorithm
  *
@@ -26,54 +28,116 @@ public class ModifiedPrimsGenerator implements MazeGenerator {
         ArrayList<Cell> z = new ArrayList<>();
         ArrayList<Cell> f = new ArrayList<>();
 
-        // Pick a random starting cell and call it the current cell
-        int randomRow = mRandGen.nextInt(maze.sizeR);
-        int randomCol = mRandGen.nextInt(maze.sizeC);
-        Cell currentCell = maze.map[randomRow][randomCol];
+        if (maze.type == Maze.NORMAL) {
 
-        // Add the current cell to z
-        z.add(currentCell);
+            // Pick a random starting cell and call it the current cell
+            int randomRow = mRandGen.nextInt(maze.sizeR);
+            int randomCol = mRandGen.nextInt(maze.sizeC);
+            Cell currentCell = maze.map[randomRow][randomCol];
 
-        // Keep looping until all cells are in z; every cell has been visited
-        while (z.size() < numCells) {
+            // Add the current cell to z
+            z.add(currentCell);
 
-            // Put all neighboring cells of the current cell into the frontier set f
-            for (int i = 0; i < Maze.NUM_DIR; i++) {
-                Cell currentNeighbor = currentCell.neigh[i];
-                if ((isIn(currentNeighbor)) && (!f.contains(currentNeighbor)) && (!z.contains(currentNeighbor))) {
-                    f.add(currentNeighbor);
+            // Keep looping until all cells are in z; every cell has been visited
+            while (z.size() < numCells) {
+
+                // Put all neighboring cells of the current cell into the frontier set f
+                for (int i = 0; i < Maze.NUM_DIR; i++) {
+                    Cell currentNeighbor = currentCell.neigh[i];
+                    if ((isIn(currentNeighbor)) && (!f.contains(currentNeighbor)) && (!z.contains(currentNeighbor))) {
+                        f.add(currentNeighbor);
+                    }
+                }
+
+                // Randomly select a cell c from the frontier set and remove it from f
+                Cell c = f.get(mRandGen.nextInt(f.size()));
+                f.remove(c);
+
+                // List all cells in z that are adjacent to the cell c
+                ArrayList<Cell> adjacentCells = new ArrayList<>();
+                for (int i = 0; i < z.size(); i++) {
+                    Cell cellToCheck = z.get(i);
+                    if (isAdjacent(cellToCheck, c)) {
+                        adjacentCells.add(cellToCheck);
+                    }
+                }
+
+                // Randomly select a cell b from adjacent cells
+                Cell b = adjacentCells.get(mRandGen.nextInt(adjacentCells.size()));
+
+                // Carve a path between c and b
+                for (int i = 0; i < Maze.NUM_DIR; i++) {
+                    Cell currentNeighbor = b.neigh[i];
+                    if ((isIn(currentNeighbor)) && (currentNeighbor == c)) {
+                        b.wall[i].present = false;
+                    }
+                }
+
+                // Add cell c to z
+                z.add(c);
+
+                // Reset current cell to c
+                currentCell = c;
+            }
+        } else if (maze.type == Maze.HEX) {
+
+            // List valid hex cells in the maze
+            ArrayList<Cell> validCells = new ArrayList<>();
+            for (int i = 0; i < maze.sizeR; i++) {
+                for (int j = (i + 1) / 2; j < maze.sizeC + (i + 1) / 2; j++) {
+                    if (!isIn(i, j))
+                        continue;
+                    validCells.add(mMaze.map[i][j]);
                 }
             }
 
-            // Randomly select a cell c from the frontier set and remove it from f
-            Cell c = f.get(mRandGen.nextInt(f.size()));
-            f.remove(c);
+            // Pick a random starting cell and call it the current cell
+            Cell currentCell = validCells.get(mRandGen.nextInt(validCells.size()));
 
-            // List all cells in z that are adjacent to the cell c
-            ArrayList<Cell> adjacentCells = new ArrayList<>();
-            for (int i = 0; i < z.size(); i++) {
-                Cell cellToCheck = z.get(i);
-                if (isAdjacent(cellToCheck, c)) {
-                    adjacentCells.add(cellToCheck);
+            // Add the current cell to z
+            z.add(currentCell);
+
+            // Keep looping until all cells are in z; every cell has been visited
+            while (z.size() < validCells.size()) {
+
+                // Put all neighboring cells of the current cell into the frontier set f
+                for (int i = 0; i < Maze.NUM_DIR; i++) {
+                    Cell currentNeighbor = currentCell.neigh[i];
+                    if ((isIn(currentNeighbor)) && (!f.contains(currentNeighbor)) && (!z.contains(currentNeighbor))) {
+                        f.add(currentNeighbor);
+                    }
                 }
-            }
 
-            // Randomly select a cell b from adjacent cells
-            Cell b = adjacentCells.get(mRandGen.nextInt(adjacentCells.size()));
+                // Randomly select a cell c from the frontier set and remove it from f
+                Cell c = f.get(mRandGen.nextInt(f.size()));
+                f.remove(c);
 
-            // Carve a path between c and b
-            for (int i = 0; i < Maze.NUM_DIR; i++) {
-                Cell currentNeighbor = b.neigh[i];
-                if ((isIn(currentNeighbor)) && (currentNeighbor == c)) {
-                    b.wall[i].present = false;
+                // List all cells in z that are adjacent to the cell c
+                ArrayList<Cell> adjacentCells = new ArrayList<>();
+                for (int i = 0; i < z.size(); i++) {
+                    Cell cellToCheck = z.get(i);
+                    if (isAdjacent(cellToCheck, c)) {
+                        adjacentCells.add(cellToCheck);
+                    }
                 }
+
+                // Randomly select a cell b from adjacent cells
+                Cell b = adjacentCells.get(mRandGen.nextInt(adjacentCells.size()));
+
+                // Carve a path between c and b
+                for (int i = 0; i < Maze.NUM_DIR; i++) {
+                    Cell currentNeighbor = b.neigh[i];
+                    if ((isIn(currentNeighbor)) && (currentNeighbor == c)) {
+                        b.wall[i].present = false;
+                    }
+                }
+
+                // Add cell c to z
+                z.add(c);
+
+                // Reset current cell to c
+                currentCell = c;
             }
-
-            // Add cell c to z
-            z.add(c);
-
-            // Reset current cell to c
-            currentCell = c;
         }
     } // end of generateMaze()
 
@@ -85,7 +149,11 @@ public class ModifiedPrimsGenerator implements MazeGenerator {
      * @return weather the cell is in the maze
      */
     private boolean isIn(int row, int column) {
-        return row >= 0 && row < mMaze.sizeR && column >= 0 && column < mMaze.sizeC;
+        if (mMaze.type == HEX) {
+            return row >= 0 && row < mMaze.sizeR && column >= (row + 1) / 2 && column < mMaze.sizeC + (row + 1) / 2;
+        } else {
+            return row >= 0 && row < mMaze.sizeR && column >= 0 && column < mMaze.sizeC;
+        }
     }
 
     /**
