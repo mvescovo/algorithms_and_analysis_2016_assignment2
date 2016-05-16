@@ -176,7 +176,79 @@ public class RecursiveBacktrackerSolver implements MazeSolver {
             isSolved();
         } else if (mMaze.type == Maze.TUNNEL) {
 
+            // Start at entrance
+            Cell currentCell = maze.entrance;
 
+            // Mark starting cell as visited
+            normalVisited[currentCell.r][currentCell.c] = true;
+            numNormalCellsUnvisited--;
+            maze.drawFtPrt(currentCell);
+
+            // Keep traversing the maze until there are no unvisited cells
+            while (numNormalCellsUnvisited > 0) {
+                while (thereAreUnvisitedNeighbors) {
+
+                    // List all unvisited neighbors
+                    ArrayList<Integer> unvisitedNeighbors = new ArrayList<>();
+                    for (int i = 0; i < Maze.NUM_DIR; i++) {
+                        Cell currentNeighbor = currentCell.neigh[i];
+                        if ((isIn(currentNeighbor)) && (!currentCell.wall[i].present)
+                                && (!normalVisited[currentNeighbor.r][currentNeighbor.c])) {
+                            unvisitedNeighbors.add(i);
+                        }
+                    }
+
+                    if ((currentCell.tunnelTo != null)
+                            && (!normalVisited[currentCell.tunnelTo.r][currentCell.tunnelTo.c])) {
+
+                        // Add an extra neighbor position for the tunnel neighbor
+                        unvisitedNeighbors.add(6);
+                    }
+
+                    // Randomly pick an unvisited neighbour
+                    if (unvisitedNeighbors.size() > 0) {
+                        randomNeighbor = unvisitedNeighbors.get(mRandGen.nextInt(unvisitedNeighbors.size()));
+
+                        // Move to the random unvisited neighbor
+                        if (randomNeighbor != 6) {
+                            previousCell.add(currentCell);
+                            currentCell = currentCell.neigh[randomNeighbor];
+                            maze.drawFtPrt(currentCell);
+                        } else {
+                            previousCell.add(currentCell);
+                            currentCell = currentCell.tunnelTo;
+                            maze.drawFtPrt(currentCell);
+                        }
+
+                        // Mark the new current cell as visited
+                        normalVisited[currentCell.r][currentCell.c] = true;
+                        numNormalCellsUnvisited--;
+
+                        // Check if we are at the exit
+                        if (currentCell == maze.exit) {
+
+                            // Found the exit!
+                            mExitReached = true;
+                            mNumCellsVisited = (maze.sizeR * maze.sizeC) - numNormalCellsUnvisited;
+                            isSolved();
+                            return;
+                        }
+                    } else {
+                        thereAreUnvisitedNeighbors = false;
+                    }
+                }
+
+                // Backtrack to the previous cell
+                if (previousCell.size() > 0) {
+                    currentCell = previousCell.pop();
+                }
+
+                // Assume unvisited neighbors at the previous cell
+                thereAreUnvisitedNeighbors = true;
+            }
+
+            // Exit not found but every cell was visited.
+            isSolved();
         }
     } // end of solveMaze()
 
