@@ -143,8 +143,66 @@ public class RecursiveBacktrackerGenerator implements MazeGenerator {
             }
         } else if (maze.type == Maze.TUNNEL) {
 
+            // Randomly pick a starting cell
+            int randomRow = mRandGen.nextInt(maze.sizeR);
+            int randomCol = mRandGen.nextInt(maze.sizeC);
+            Cell currentCell = maze.map[randomRow][randomCol];
+
+            // Mark starting cell as visited
+            normalVisited[currentCell.r][currentCell.c] = true;
+            numNormalCellsUnvisited--;
+
+            // Visit every cell in the maze to ensure a perfect maze
+            while (numNormalCellsUnvisited > 0) {
+                while (thereAreUnvisitedNeighbors) {
+
+                    // List all unvisited neighbors
+                    ArrayList<Integer> unvisitedNeighbors = new ArrayList<>();
+                    for (int i = 0; i < NUM_DIR; i++) {
+                        Cell currentNeighbor = currentCell.neigh[i];
+                        if ((isIn(currentNeighbor)) && (!normalVisited[currentNeighbor.r][currentNeighbor.c])) {
+                            unvisitedNeighbors.add(i);
+                        }
+                    }
+                    if ((currentCell.tunnelTo != null)
+                            && (!normalVisited[currentCell.tunnelTo.r][currentCell.tunnelTo.c])) {
+                        // Add an extra neighbor position for the tunnel neighbor
+                        unvisitedNeighbors.add(6);
+                    }
+
+                    // Randomly pick an unvisited neighbour
+                    if (unvisitedNeighbors.size() > 0) {
+                        randomNeighbor = unvisitedNeighbors.get(mRandGen.nextInt(unvisitedNeighbors.size()));
+
+                        // Carve a path and move to the random unvisited neighbor
+                        if (randomNeighbor != 6) {
+                            currentCell.wall[randomNeighbor].present = false;
+                            previousCell.add(currentCell);
+                            currentCell = currentCell.neigh[randomNeighbor];
+                        } else {
+                            previousCell.add(currentCell);
+                            currentCell = currentCell.tunnelTo;
+                        }
+
+                        // Mark the new current cell as visited
+                        normalVisited[currentCell.r][currentCell.c] = true;
+                        numNormalCellsUnvisited--;
+                    } else {
+                        thereAreUnvisitedNeighbors = false;
+                    }
+                }
+
+                // Backtrack to the previous cell
+                if (previousCell.size() > 0) {
+                    currentCell = previousCell.pop();
+                }
+
+                // Assume unvisited neighbors at the previous cell
+                thereAreUnvisitedNeighbors = true;
+            }
         }
 
+        System.out.println("num cells unvsited: " + numNormalCellsUnvisited);
 
     } // end of generateMaze()
 
