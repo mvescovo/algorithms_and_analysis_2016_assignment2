@@ -3,6 +3,7 @@ package mazeGenerator;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Random;
 
 import maze.Cell;
 import maze.Maze;
@@ -11,39 +12,75 @@ import mazeGenerator.KruskalGenerator.Edge;
 
 public class KruskalGenerator implements MazeGenerator {
 
+	private Maze mMaze;
+    private Random mRandGen = new Random(System.currentTimeMillis());
+    
+    private boolean isInHexMaze(int row, int column) 
+    {
+    	return row >= 0 && row < mMaze.sizeR && column >= (row + 1) / 2 && column < mMaze.sizeC + (row + 1) / 2;
+    }
+    
 	@Override
 	public void generateMaze(Maze maze) 
 	{
 		 mMaze = maze;
 		 int numCells = maze.sizeR * maze.sizeC;
 		 ArrayList<Edge> edges = new ArrayList<Edge>();
-		 for(int i=0;i<maze.sizeR;i++)
+		 
+		 if(maze.type == Maze.HEX)
 		 {
-			 for(int j=0;j<maze.sizeC;j++)
+			 for (int i = 0; i < maze.sizeR; i++) {
+	             for (int j = (i + 1) / 2; j < maze.sizeC + (i + 1) / 2; j++) 
+	             {
+	                 if (!isInHexMaze(i, j))
+	                     continue;
+	                 Cell currentCell = maze.map[i][j];
+	                 for (int d = 0; d < Maze.NUM_DIR; d++) 
+	                 {
+	                     Cell currentNeighbor = currentCell.neigh[d];
+	                     if(currentNeighbor != null)
+	                     {
+	                    		 Edge edge = new Edge(currentCell,currentNeighbor);
+	                    		 edges.add(edge);
+	                     }
+	                     
+	                 }
+	             }
+	         }
+		 }
+		 else if(maze.type == Maze.NORMAL)
+		 {
+			 for(int i=0;i<maze.sizeR;i++)
 			 {
-				 if((j == (maze.sizeC-1)) && (i < (maze.sizeR-1)))
+				 for(int j=0;j<maze.sizeC;j++)
 				 {
-					Edge edge = new Edge(maze.map[i][j],maze.map[i + 1][j]);
-					edges.add(edge);
-					continue;
-				 }
-				 else if(i == (maze.sizeR-1) && (j < (maze.sizeC-1)))
-				 {
-					 Edge edge = new Edge(maze.map[i][j],maze.map[i][j+1]);
-					 edges.add(edge);
-					 continue;
-				 }
-				 else if(i < (maze.sizeR-1) && j < (maze.sizeC-1))
-				 {
-					 Edge edge = new Edge(maze.map[i][j],maze.map[i][j+1]);
-					 edges.add(edge);
-					 edge = new Edge(maze.map[i][j],maze.map[i + 1][j]);
-					 edges.add(edge);
+					 if((j == (maze.sizeC-1)) && (i < (maze.sizeR-1)))
+					 {
+						Edge edge = new Edge(maze.map[i][j],maze.map[i + 1][j]);
+						edges.add(edge);
+						continue;
+					 }
+					 else if(i == (maze.sizeR-1) && (j < (maze.sizeC-1)))
+					 {
+						 Edge edge = new Edge(maze.map[i][j],maze.map[i][j+1]);
+						 edges.add(edge);
+						 continue;
+					 }
+					 else if(i < (maze.sizeR-1) && j < (maze.sizeC-1))
+					 {
+						 Edge edge = new Edge(maze.map[i][j],maze.map[i][j+1]);
+						 edges.add(edge);
+						 edge = new Edge(maze.map[i][j],maze.map[i + 1][j]);
+						 edges.add(edge);
+					 }
 				 }
 			 }
 		 }
+	
 		 
 		 Collections.shuffle(edges);
+		 
+//		 System.out.println(edges.size());
 //		 for(Edge e:edges)
 //		 {
 //			 System.out.println("\nEdge: ");
@@ -55,11 +92,24 @@ public class KruskalGenerator implements MazeGenerator {
 		 
 		 HashMap<Cell,CellTree> cellHash = new HashMap<Cell,CellTree>();
 		 
-		 for(int i=0;i<maze.sizeR;i++)
+		 if(maze.type == Maze.NORMAL)
 		 {
-			 for(int j=0;j<maze.sizeC;j++)
+			 for(int i=0;i<maze.sizeR;i++)
 			 {
-				 cellHash.put(maze.map[i][j],new CellTree(maze.map[i][j]));
+				 for(int j=0;j<maze.sizeC;j++)
+				 {
+					 cellHash.put(maze.map[i][j],new CellTree(maze.map[i][j]));
+				 }
+			 }
+		 }
+		 else if(maze.type == Maze.HEX)
+		 {
+			 for (int i = 0; i < maze.sizeR; i++) 
+			 {
+	             for (int j = (i + 1) / 2; j < maze.sizeC + (i + 1) / 2; j++) 
+	             {
+	            	 cellHash.put(maze.map[i][j],new CellTree(maze.map[i][j]));
+	             }
 			 }
 		 }
 		 
