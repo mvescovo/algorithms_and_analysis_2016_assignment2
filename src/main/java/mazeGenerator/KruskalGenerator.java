@@ -1,14 +1,14 @@
 package mazeGenerator;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Random;
-
+import java.util.Map.Entry;
+import maze.*;
 import maze.Cell;
-import maze.Maze;
-import mazeGenerator.KruskalGenerator.CellTree;
-import mazeGenerator.KruskalGenerator.Edge;
+
 
 public class KruskalGenerator implements MazeGenerator {
 
@@ -48,7 +48,7 @@ public class KruskalGenerator implements MazeGenerator {
 	             }
 	         }
 		 }
-		 else if(maze.type == Maze.NORMAL)
+		 else if(maze.type == Maze.NORMAL || maze.type == Maze.TUNNEL)
 		 {
 			 for(int i=0;i<maze.sizeR;i++)
 			 {
@@ -92,7 +92,7 @@ public class KruskalGenerator implements MazeGenerator {
 		 
 		 HashMap<Cell,CellTree> cellHash = new HashMap<Cell,CellTree>();
 		 
-		 if(maze.type == Maze.NORMAL)
+		 if(maze.type == Maze.NORMAL || maze.type == Maze.TUNNEL)
 		 {
 			 for(int i=0;i<maze.sizeR;i++)
 			 {
@@ -102,7 +102,36 @@ public class KruskalGenerator implements MazeGenerator {
 				 }
 			 }
 		 }
-		 else if(maze.type == Maze.HEX)
+		 // exp tunnel code
+		 ArrayList<Cell> tunnelList = new ArrayList<Cell>();
+		 if(maze.type == Maze.TUNNEL)
+		 {
+			 for(int i=0;i<maze.sizeR;i++)
+			 {
+				 for(int j=0;j<maze.sizeC;j++)
+				 {
+					 if(maze.map[i][j].tunnelTo != null)
+						 tunnelList.add(maze.map[i][j]);
+				 }
+			 } 
+		 }
+		 
+		 for(int i = 1; i< tunnelList.size(); i += 2)
+		 {
+			 tunnelList.remove(i);
+		 }
+		 
+		 for(int i = 0; i<tunnelList.size(); i++)
+		 {
+			 System.out.println(i);
+			 cellHash.get(tunnelList.get(i).tunnelTo).setParent(tunnelList.get(i));
+			 ArrayList<Cell> temp = new ArrayList<Cell>();
+			 temp.add(tunnelList.get(i).tunnelTo);
+			 cellHash.get(tunnelList.get(i)).addChildren(temp);
+		 }
+		 // exp tunnel code
+
+		 if(maze.type == Maze.HEX)
 		 {
 			 for (int i = 0; i < maze.sizeR; i++) 
 			 {
@@ -160,7 +189,7 @@ public class KruskalGenerator implements MazeGenerator {
 //					 System.out.println();
 //				 }
 			 }
-//			 if(c==10)
+//			 if(c==2)
 //				 break;
 		 }
 		 
