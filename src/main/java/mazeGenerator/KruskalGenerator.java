@@ -116,19 +116,26 @@ public class KruskalGenerator implements MazeGenerator {
 			 } 
 		 }
 		 
-		 for(int i = 1; i< tunnelList.size(); i += 2)
+		 //exp2
+		 ArrayList<Cell> singleEndTunnelList = new ArrayList<Cell>();
+		 for(int i = 0; i< tunnelList.size(); i ++)
 		 {
-			 tunnelList.remove(i);
+			 Cell end1 = tunnelList.get(i);
+			 if((!singleEndTunnelList.contains(end1.tunnelTo)) && (!singleEndTunnelList.contains(end1)))
+			 {
+				 singleEndTunnelList.add(end1); 
+			 }
 		 }
 		 
-		 for(int i = 0; i<tunnelList.size(); i++)
+		 //remove duplicate ends		  
+		 for(int i = 0; i<singleEndTunnelList.size(); i ++)
 		 {
-			 System.out.println(i);
-			 cellHash.get(tunnelList.get(i).tunnelTo).setParent(tunnelList.get(i));
+			 cellHash.get(singleEndTunnelList.get(i).tunnelTo).setParent(singleEndTunnelList.get(i));
 			 ArrayList<Cell> temp = new ArrayList<Cell>();
-			 temp.add(tunnelList.get(i).tunnelTo);
-			 cellHash.get(tunnelList.get(i)).addChildren(temp);
+			 temp.add(singleEndTunnelList.get(i).tunnelTo);
+			 cellHash.get(singleEndTunnelList.get(i)).addChildren(temp);
 		 }
+		 
 		 // exp tunnel code
 
 		 if(maze.type == Maze.HEX)
@@ -189,7 +196,7 @@ public class KruskalGenerator implements MazeGenerator {
 //					 System.out.println();
 //				 }
 			 }
-//			 if(c==2)
+//			 if(c==1)
 //				 break;
 		 }
 		 
