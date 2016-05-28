@@ -9,24 +9,54 @@ import java.util.Map.Entry;
 import maze.*;
 import maze.Cell;
 
-
-public class KruskalGenerator implements MazeGenerator {
-
+/**
+ * Implements the Kruskal algorithm to generate mazes
+ * @author larvinloy
+ *
+ */
+public class KruskalGenerator implements MazeGenerator 
+{
 	private Maze mMaze;
-    private Random mRandGen = new Random(System.currentTimeMillis());
     
+	/**
+     * Check if a cell is in the maze if the maze is a hex
+     *
+     * @param row the row of the cell to check
+     * @param column the column of the cell to check
+     * @return weather the cell is in the hex maze
+     */
     private boolean isInHexMaze(int row, int column) 
     {
     	return row >= 0 && row < mMaze.sizeR && column >= (row + 1) / 2 && column < mMaze.sizeC + (row + 1) / 2;
     }
     
+    /**
+     * ALGORITHM KRUSKALMAZE(M)
+     * 
+	 * Input: Maze M, all walls built up, start and exit points marked.
+	 * Output: Maze M, appropriate walls knocked down to form a perfect maze from start to exit.
+	 * 
+	 * 1. Create a list of all possible edges and shuffle the list
+	 * 2. For every cell in the maze, create a data structure that store the tree(parent) it belongs to 
+	 * 		and the children it has
+	 * 3. Remove an edge from the list of edges and check if both cells have the same parent
+	 * 		3.1 If both have the same parent: Go back to step 3.
+	 * 		3.2 If both have different parent: break the wall between them, add the children of the parent
+	 * 			of the second cell to the parent of the first cell. And set the parent of cell 1
+	 * 			as the parent of all the children cells.
+	 * 4. Repeat step 3 until all edges are exhausted.
+	 * 5. A perfect maze if created after all edges are checked.
+	 * 			
+     */
 	@Override
 	public void generateMaze(Maze maze) 
 	{
 		 mMaze = maze;
-		 int numCells = maze.sizeR * maze.sizeC;
+		 
+		 //Array list to store all the possible edges
 		 ArrayList<Edge> edges = new ArrayList<Edge>();
 		 
+		 //Create list of edges for hex type maze
 		 if(maze.type == Maze.HEX)
 		 {
 			 for (int i = 0; i < maze.sizeR; i++) {
@@ -48,6 +78,8 @@ public class KruskalGenerator implements MazeGenerator {
 	             }
 	         }
 		 }
+		 
+		 //Create a list of edges for normal and tunnel type mazes
 		 else if(maze.type == Maze.NORMAL || maze.type == Maze.TUNNEL)
 		 {
 			 for(int i=0;i<maze.sizeR;i++)
@@ -77,21 +109,20 @@ public class KruskalGenerator implements MazeGenerator {
 			 }
 		 }
 	
-		 
+		 //Shuffle the edges randomly so that an edge is picked at random
 		 Collections.shuffle(edges);
 		 
-//		 System.out.println(edges.size());
-//		 for(Edge e:edges)
-//		 {
-//			 System.out.println("\nEdge: ");
-//			 System.out.println(e.c1().r + " " + e.c1().c);
-//			 System.out.println(e.c2().r + " " + e.c2().c);
-//		 }
-		 
-		 
-		 
+		 /*
+		  * Create a hash map of Cell and the CellTree data structure
+		  * The cell tree data structure store information about the parent tree/cell it belongs to
+		  * If the cell is a parent cell, it store information about he nodes in the parent tree
+		  */
 		 HashMap<Cell,CellTree> cellHash = new HashMap<Cell,CellTree>();
 		 
+		 /*
+		  * Initialize all the CellTree data structures for normal and tunnel mazes
+		  * Initially the parent cell and children of a cell is the cell itself
+		  */
 		 if(maze.type == Maze.NORMAL || maze.type == Maze.TUNNEL)
 		 {
 			 for(int i=0;i<maze.sizeR;i++)
@@ -102,7 +133,10 @@ public class KruskalGenerator implements MazeGenerator {
 				 }
 			 }
 		 }
-		 // exp tunnel code
+		 
+		 /*
+		  * If maze is tunnel type, create a list of cells that have tunnels
+		  */
 		 ArrayList<Cell> tunnelList = new ArrayList<Cell>();
 		 if(maze.type == Maze.TUNNEL)
 		 {
@@ -116,7 +150,9 @@ public class KruskalGenerator implements MazeGenerator {
 			 } 
 		 }
 		 
-		 //exp2
+		 /*
+		  * Create another lists of cells but with only one end of the tunnels
+		  */
 		 ArrayList<Cell> singleEndTunnelList = new ArrayList<Cell>();
 		 for(int i = 0; i< tunnelList.size(); i ++)
 		 {
@@ -127,7 +163,11 @@ public class KruskalGenerator implements MazeGenerator {
 			 }
 		 }
 		 
-		 //remove duplicate ends		  
+		 /*
+		  * Consider the other end of the tunnel as an edge, 
+		  * Mark one end as the parent of the other end	
+		  * Update the respective CellTree for the cells with tunnels	  
+		  */
 		 for(int i = 0; i<singleEndTunnelList.size(); i ++)
 		 {
 			 cellHash.get(singleEndTunnelList.get(i).tunnelTo).setParent(singleEndTunnelList.get(i));
@@ -136,8 +176,10 @@ public class KruskalGenerator implements MazeGenerator {
 			 cellHash.get(singleEndTunnelList.get(i)).addChildren(temp);
 		 }
 		 
-		 // exp tunnel code
-
+		 /*
+		  * Initialize all the CellTree data structures for hex type maze
+		  * Initially the parent cell and children of a cell is the cell itself
+		  */
 		 if(maze.type == Maze.HEX)
 		 {
 			 for (int i = 0; i < maze.sizeR; i++) 
@@ -149,21 +191,33 @@ public class KruskalGenerator implements MazeGenerator {
 			 }
 		 }
 		 
-		 int c = 0;
+		 /*
+		  * Take each edge in the list of edges and remove the wall between them if they dont
+		  * belong to the same parent tree
+		  */
 		 while(!edges.isEmpty())
 		 {
-			 c++;
+			 //Get the first edge in the list
 			 Edge edge = edges.remove(0);
+			 
 			 Cell c1 = edge.c1;
 			 Cell c2 = edge.c2;
+			 
+			//Check if both cells have the same parent
 			 Cell parentCellofc1 = cellHash.get(cellHash.get(c1).parent).parent;
 			 Cell parentCellofc2 = cellHash.get(cellHash.get(c2).parent).parent;
 			 if(parentCellofc1.equals(parentCellofc2))
 			 {
-//				 System.out.println("Useless edge");
+				 /*
+				  * This edge is useless as it belongs to the same parent cell
+				  */
 			 }
 			 else
 			 {
+				 /*
+				  * Both cells have different parents, 
+				  * Break the wall between them
+				 */
 				 for (int i = 0; i < Maze.NUM_DIR; i++) 
 				 {
 					 Cell currentNeighbor = c1.neigh[i];
@@ -172,43 +226,35 @@ public class KruskalGenerator implements MazeGenerator {
 		            	 c1.wall[i].present = false;
 		             }
 				 }
+				 /* So, add the children of cell 2's parent to the list of children of the parent 
+				  * of cell 1
+				  * Change the parent of the every child of cell 2's parent(which includes cell 2) to
+				  * cell 1's parent
+				  */	
 				 ArrayList<Cell> children = cellHash.get(cellHash.get(c2).parent).getChildren();
 				 cellHash.get(parentCellofc1).addChildren(cellHash.get(cellHash.get(c2).parent).getChildren());
 				 for(Cell e: children)
 				 {
 					 cellHash.get(e).setParent(cellHash.get(c1).getParent());
 					 
-				 }
-				 
-				 
-//				 System.out.println("\n Table:");
-//				 for (Entry<Cell, CellTree> entry : cellHash.entrySet())
-//				 {
-//					 System.out.print(entry.getKey().r + "," 
-//							 + entry.getKey().c + "  " 
-//							 + entry.getValue().parent.r + "," 
-//							 + entry.getValue().parent.c + "  ");
-//					 children = entry.getValue().getChildren();
-//					 for(Cell e: children)
-//					 {
-//						 System.out.print(e.r +"," + e.c + " ");
-//					 }
-//					 System.out.println();
-//				 }
+				 }	 
 			 }
-//			 if(c==1)
-//				 break;
-		 }
-		 
-		
-		 
-		 
-		 
+		 }		 
 	} // end of generateMaze()
 	
+	/**
+	 * Data structure to identify the parent of each cell (root of the tree it belongs to)
+	 * Also store the children of the cell (nodes of the tree)
+	 * The children are only valid if the cell is the parent of itself (cell is the root itself)
+	 * @author larvinloy
+	 *
+	 */
 	public class CellTree
 	{
+		//The parent cell of this tree
 		private Cell parent;
+		
+		//The children in this tree
 		private ArrayList<Cell> children = new ArrayList<Cell>();
 		
 		public CellTree(Cell init)
@@ -238,6 +284,12 @@ public class KruskalGenerator implements MazeGenerator {
 		}
 	}
 	
+	/**
+	 * Data structure to store edges
+	 * Each Edge object contains two cells c1 and c2
+	 * @author larvinloy
+	 *
+	 */
 	public class Edge
 	{
 		private Cell c1;
