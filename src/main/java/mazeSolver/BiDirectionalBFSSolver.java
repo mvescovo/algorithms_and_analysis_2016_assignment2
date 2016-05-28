@@ -1,14 +1,12 @@
 package mazeSolver;
 
-import static maze.Maze.HEX;
+import maze.Cell;
+import maze.Maze;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
 
-import maze.Cell;
-import maze.Maze;
+import static maze.Maze.HEX;
 
 /** 
  * Implements Bi-directional BFS maze solving algorithm.
@@ -44,13 +42,13 @@ public class BiDirectionalBFSSolver implements MazeSolver
 		this.mMaze = maze;
 		LinkedList<Cell> entryQueue = new LinkedList<Cell>();
 		LinkedList<Cell> exitQueue = new LinkedList<Cell>();
-		HashSet<Cell> entryVisitedCells = new HashSet<Cell>();
-		HashSet<Cell> exitVisitedCells = new HashSet<Cell>();
+		entryVisitedCells = new HashSet<Cell>();
+		exitVisitedCells = new HashSet<Cell>();
 		
 		entryQueue.add(maze.entrance);
 		exitQueue.add(maze.exit);
 		
-		boolean meet = false;
+		meet = false;
 		
 		Cell entryCurrent;
 		Cell exitCurrent;
