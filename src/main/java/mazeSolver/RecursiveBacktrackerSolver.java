@@ -50,7 +50,7 @@ public class RecursiveBacktrackerSolver implements MazeSolver {
         boolean normalVisited[][] = new boolean[maze.sizeR][maze.sizeC];
         HashSet<Cell> hexVisited = new HashSet<>();
         int numNormalCellsUnvisited = maze.sizeR * maze.sizeC;
-        int numHexCellsUnvisited;
+        int numHexCellsUnvisited = 0;
         boolean thereAreUnvisitedNeighbors = true;
         int randomNeighbor;
         Stack<Cell> previousCell = new Stack<>();
@@ -64,6 +64,12 @@ public class RecursiveBacktrackerSolver implements MazeSolver {
             normalVisited[currentCell.r][currentCell.c] = true;
             numNormalCellsUnvisited--;
             maze.drawFtPrt(currentCell);
+
+            // If the maze started with a ridiculous 1 x 1 grid then catch this here
+            if (numNormalCellsUnvisited == 0) {
+                mNumCellsVisited = 1;
+                mExitReached = true;
+            }
 
             // (Step 4) Keep traversing the maze until there are no unvisited cells
             while (numNormalCellsUnvisited > 0) {
@@ -146,6 +152,12 @@ public class RecursiveBacktrackerSolver implements MazeSolver {
             numHexCellsUnvisited--;
             maze.drawFtPrt(currentCell);
 
+            // If the maze started with a ridiculous 1 x 1 grid then catch this here
+            if (numNormalCellsUnvisited == 0) {
+                mNumCellsVisited = 1;
+                mExitReached = true;
+            }
+
             // (Step 4) Keep traversing the maze until there are no unvisited cells
             while (numHexCellsUnvisited > 0) {
 
@@ -209,6 +221,12 @@ public class RecursiveBacktrackerSolver implements MazeSolver {
             normalVisited[currentCell.r][currentCell.c] = true;
             numNormalCellsUnvisited--;
             maze.drawFtPrt(currentCell);
+
+            // If the maze started with a ridiculous 1 x 1 grid then catch this here
+            if (numNormalCellsUnvisited == 0) {
+                mNumCellsVisited = 1;
+                mExitReached = true;
+            }
 
             // (Step 4) Keep traversing the maze until there are no unvisited cells
             while (numNormalCellsUnvisited > 0) {
