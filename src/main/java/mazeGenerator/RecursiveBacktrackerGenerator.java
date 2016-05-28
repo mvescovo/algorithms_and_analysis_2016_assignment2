@@ -256,6 +256,9 @@ public class RecursiveBacktrackerGenerator implements MazeGenerator {
         }
     }
 
+    /**
+     * Randomly select a starting cell for the maze.
+     */
     private void selectStartingCell() {
         if (mMaze.type == HEX) {
             mCurrentCell = mValidCells.get(mRandGen.nextInt(mValidCells.size()));
