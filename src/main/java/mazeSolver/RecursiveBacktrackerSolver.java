@@ -155,9 +155,11 @@ public class RecursiveBacktrackerSolver implements MazeSolver {
             maze.drawFtPrt(currentCell);
 
             // If the maze started with a ridiculous 1 x 1 grid then catch this here
-            if (numNormalCellsUnvisited == 0) {
+            // Also, if the entrance is also the exit
+            if ((numNormalCellsUnvisited == 0) || (mMaze.entrance == mMaze.exit)) {
                 mNumCellsVisited = 1;
                 mExitReached = true;
+                return;
             }
 
             // (Step 4) Keep traversing the maze until there are no unvisited cells
@@ -225,9 +227,11 @@ public class RecursiveBacktrackerSolver implements MazeSolver {
             maze.drawFtPrt(currentCell);
 
             // If the maze started with a ridiculous 1 x 1 grid then catch this here
-            if (numNormalCellsUnvisited == 0) {
+            // Also, if the entrance is also the exit
+            if ((numNormalCellsUnvisited == 0) || (mMaze.entrance == mMaze.exit)) {
                 mNumCellsVisited = 1;
                 mExitReached = true;
+                return;
             }
 
             // (Step 4) Keep traversing the maze until there are no unvisited cells
