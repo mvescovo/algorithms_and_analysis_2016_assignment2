@@ -59,11 +59,11 @@ public class RecursiveBacktrackerGenerator implements MazeGenerator {
         Stack<Cell> previousCell = new Stack<>();
         ArrayList<Cell> lockedCells = new ArrayList<>();
 
-        // (Step 1) Randomly pick a starting cell
-        selectStartingCell();
-
         if (maze.type == Maze.NORMAL) {
             numCellsUnvisited = maze.sizeR * maze.sizeC;
+
+            // (Step 1) Randomly pick a starting cell
+            selectStartingCell();
 
             // Mark starting cell as visited
             mNormalVisited[mCurrentCell.r][mCurrentCell.c] = true;
@@ -124,6 +124,9 @@ public class RecursiveBacktrackerGenerator implements MazeGenerator {
             // Set the number of cells still to visit
             numCellsUnvisited = mValidCells.size();
 
+            // (Step 1) Randomly pick a starting cell
+            selectStartingCell();
+
             // Mark starting cell as visited
             mHexVisited.add(mCurrentCell);
             numCellsUnvisited--;
@@ -170,6 +173,9 @@ public class RecursiveBacktrackerGenerator implements MazeGenerator {
             }
         } else if (maze.type == Maze.TUNNEL) {
             numCellsUnvisited = maze.sizeR * maze.sizeC;
+
+            // (Step 1) Randomly pick a starting cell
+            selectStartingCell();
 
             // Mark starting cell as visited
             mNormalVisited[mCurrentCell.r][mCurrentCell.c] = true;
