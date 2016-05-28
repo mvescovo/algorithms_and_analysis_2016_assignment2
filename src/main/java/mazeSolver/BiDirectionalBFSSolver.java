@@ -111,6 +111,7 @@ public class BiDirectionalBFSSolver implements MazeSolver
 		if(maze.entrance.equals(maze.exit))
 		{
 			meet = true;
+			maze.drawFtPrt(maze.entrance);
 			entryVisitedCells.add(maze.entrance);
 		}
 		
