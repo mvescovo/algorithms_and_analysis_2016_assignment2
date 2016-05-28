@@ -34,7 +34,7 @@ public abstract class Maze {
 	public final static int SOUTHEAST = 5;
 	public final static int SOUTH = 5;
 	public final static int NUM_DIR = 6;
-	// used for move along a direction, for both square and hexagon
+	// used for move along a deriction, for both square and hexagon
 	// e.g., the northeast neighbor of map[r][c] would be map[r + deltaR[NORTHEAST][c + deltaC[NORTHEAST]]
 	public final static int deltaR[] = { 0, 1, 1, 0, -1, -1 };
 	public final static int deltaC[] = { 1, 1, 0, -1, -1, 0 };
@@ -82,10 +82,17 @@ public abstract class Maze {
 	 * Function to draw the maze in a window.
 	 */
 	public abstract void draw();
+
 	/**
 	 * Draw a foot print at cell's position, for testing solution
 	 * @param cell Cell to be drawn.
 	 */
 	public abstract void drawFtPrt(Cell cell);
 
-} // end of class Maze
+
+        /**
+         * Show validation result of whether the maze is solved
+         */
+        public abstract boolean validate();
+
+}

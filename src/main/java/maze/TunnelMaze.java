@@ -5,16 +5,15 @@ import java.util.*;
 /**
  * Class of a rectangular maze contains several tunnels each of which connecting a pair of cells.
  * 
- * @author Jeffrey, Youhan
+ * @author Jeffrey Chan
+ * @author Youhan Xia
  *
  */
 public class TunnelMaze extends NormalMaze {
-	
 	public TunnelMaze() {
 		type = TUNNEL;
 	} // end of TunnelMaze()
 
-	
 	@Override
 	public void initMaze(int rs, int cs, int entR, int entC, int exitR, int exitC, List<int[]> tunnelList) {
 		super.initMaze(rs, cs, entR, entC, exitR, exitC, tunnelList);
@@ -23,7 +22,6 @@ public class TunnelMaze extends NormalMaze {
 			map[tunnelList.get(i)[2]][tunnelList.get(i)[3]].tunnelTo = map[tunnelList.get(i)[0]][tunnelList.get(i)[1]];
 		}
 	} // end of initMaze()
-	
 	
 	@Override
 	public boolean isPerfect() {
@@ -66,7 +64,6 @@ public class TunnelMaze extends NormalMaze {
 		return true;
 	} // end of isPerfect()
 	
-	
 	@Override
 	public void draw() {
 		// draw nothing if visualization is switched off
@@ -107,5 +104,62 @@ public class TunnelMaze extends NormalMaze {
 			}
 		}
 	} // end of draw()
-	
+
+
+        @Override
+        public boolean validate() {
+                boolean isValid = true;
+                int pathLength = 0;
+                int count = 0;
+
+                int stepCount[][] = new int[sizeR][sizeC];
+                Queue<Cell> queue = new LinkedList<Cell>();
+
+                queue.add(entrance);
+                stepCount[entrance.r][entrance.c] = 1;
+
+                while (!queue.isEmpty()) {
+                        Cell cell = queue.poll();
+                        count++;
+                        int step = stepCount[cell.r][cell.c];
+
+                        if (cell.tunnelTo != null && isRecorded[cell.tunnelTo.r][cell.tunnelTo.c] && stepCount[cell.tunnelTo.r][cell.tunnelTo.c] == 0) {
+                                stepCount[cell.tunnelTo.r][cell.tunnelTo.c] = step + 1;
+                                queue.add(cell.tunnelTo);
+                        }
+
+                        for (int i = 0; i < Maze.NUM_DIR; i++) {
+                                Cell next = cell.neigh[i];
+                                if (next != null && !cell.wall[i].present && isRecorded[next.r][next.c] && stepCount[next.r][next.c] == 0) {
+                                        stepCount[next.r][next.c] = step + 1;
+                                        queue.add(next);
+                                }
+                        }
+                }
+
+                if (stepCount[exit.r][exit.c] == 0) {
+                        isValid = false;
+                        System.out.println("[Validation] Exit is not reached.");
+                }
+                else {
+                        pathLength = stepCount[exit.r][exit.c];
+                }
+
+                for (int i = 0; i < sizeR; i++){
+                        for (int j = 0; j < sizeC; j++) {
+                                if (isValid && isRecorded[i][j] && stepCount[i][j] == 0) {
+                                        isValid = false;
+                                        System.out.println("[Validation] Visited cell not reachable.");
+                                }
+                        }
+                }
+
+                if (isValid) {
+                        System.out.println("[Validation] Number of cells visited = " + count);
+                        System.out.println("[Validation] Path length of the solution = " + pathLength);
+                }
+
+                return isValid;
+        } // end of validate()
+
 } // end of class TunnelMaze

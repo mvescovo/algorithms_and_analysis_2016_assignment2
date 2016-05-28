@@ -68,6 +68,9 @@ public class HexMaze extends NormalMaze {
 			entrance = map[entR][entC + (entR + 1) / 2];
 		if (isIn(exitR, exitC + (exitR + 1) / 2))
 			exit = map[exitR][exitC + (exitR + 1) / 2];
+
+                // set up recording matrix for validation
+                isRecorded = new boolean[sizeR][sizeC + (sizeR + 1) / 2];
 	} // end of initMaze()
 	
 	
@@ -172,6 +175,9 @@ public class HexMaze extends NormalMaze {
 	
 	@Override
 	public void drawFtPrt(Cell cell) {
+                // record every cell drawn
+                isRecorded[cell.r][cell.c] = true;
+
 		// draw nothing if visualization is switched off
 		if (!isVisu)
 			return;
@@ -180,4 +186,57 @@ public class HexMaze extends NormalMaze {
 		StdDraw.filledCircle(cell.r % 2 * 0.5 + cell.c - (cell.r + 1) / 2 + 0.5, cell.r + 0.5, 0.25);
 	} // end of drawFtPrt()
 	
+
+        @Override
+        public boolean validate() {
+                boolean isValid = true;
+                int pathLength = 0;
+                int count = 0;
+
+                int stepCount[][] = new int[sizeR][sizeC + (sizeR + 1) / 2];
+                Queue<Cell> queue = new LinkedList<Cell>();
+
+                queue.add(entrance);
+                stepCount[entrance.r][entrance.c] = 1;
+
+                while (!queue.isEmpty()) {
+                        Cell cell = queue.poll();
+                        count++;
+                        int step = stepCount[cell.r][cell.c];
+
+                        for (int i = 0; i < Maze.NUM_DIR; i++) {
+                                Cell next = cell.neigh[i];
+                                if (next != null && !cell.wall[i].present && isRecorded[next.r][next.c] && stepCount[next.r][next.c] == 0) {
+                                        stepCount[next.r][next.c] = step + 1;
+                                        queue.add(next);
+                                }
+                        }
+                }
+
+                if (stepCount[exit.r][exit.c] == 0) {
+                        isValid = false;
+                        System.out.println("[Validation] Exit is not reached.");
+                }
+                else {
+                        pathLength = stepCount[exit.r][exit.c];
+                }
+
+                for (int i = 0; i < sizeR; i++){
+                        for (int j = 0; j < sizeC + (sizeR + 1) / 2; j++) {
+                                if (isValid && isRecorded[i][j] && stepCount[i][j] == 0) {
+                                        isValid = false;
+                                        System.out.println("[Validation] Visited cell not reachable.");
+                                }
+                        }
+                }
+
+                if (isValid) {
+                        System.out.println("[Validation] Number of cells visited = " + count);
+                        System.out.println("[Validation] Path length of the solution = " + pathLength);
+                }
+
+                return isValid;
+        } // end of validate()
+
+
 } // end of class HexMaze
