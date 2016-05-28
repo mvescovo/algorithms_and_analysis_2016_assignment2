@@ -46,7 +46,7 @@ public class ModifiedPrimsGenerator implements MazeGenerator {
         ArrayList<Cell> f = new ArrayList<>();
         Cell currentCell = null;
 
-        if (maze.type == Maze.NORMAL) {
+        if ((maze.type == Maze.NORMAL) || (maze.type == Maze.TUNNEL)) {
 
             // Get the number of cells in a normal maze
             numCells = maze.sizeR * maze.sizeC;
