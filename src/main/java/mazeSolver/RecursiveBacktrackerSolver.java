@@ -22,6 +22,28 @@ public class RecursiveBacktrackerSolver implements MazeSolver {
     private int mNumCellsVisited = 0;
     private boolean mExitReached = false;
 
+    /**
+     * Solve a perfect maze using the following recursive backtracker algorithm:
+     *
+     * ALGORITHM SMRB(M)
+     * Traverse the maze from the starting cell until the exit cell has been reached.
+     *
+     * Input: Maze M, appropriate walls knocked down to form a perfect maze from start to exit.
+     * Output: Maze M, a solution to the maze from start to exit.
+     *
+     * 1: Start at the entrance cell.
+     *
+     * 2: Pick a random unvisited neighbouring cell and move to that neighbour.
+     *
+     * 3: Continue this process until we reach a cell that has no unvisited neighbours.
+     *    In that case, backtrack one cell at a time, until we've backtracked to a cell that has unvisited neighbours.
+     *    Repeat step 2.
+     *
+     * 4: When there are no more unvisited neighbours for all cells,
+     *    then every cell would have been visited and we would have found the exit.
+     *
+     * @param maze The maze to solve.
+     */
     @Override
     public void solveMaze(Maze maze) {
         mMaze = maze;
@@ -35,7 +57,7 @@ public class RecursiveBacktrackerSolver implements MazeSolver {
 
         if (mMaze.type == Maze.NORMAL) {
 
-            // Start at entrance
+            // (Step 1) Start at entrance
             Cell currentCell = maze.entrance;
 
             // Mark starting cell as visited
@@ -43,11 +65,13 @@ public class RecursiveBacktrackerSolver implements MazeSolver {
             numNormalCellsUnvisited--;
             maze.drawFtPrt(currentCell);
 
-            // Keep traversing the maze until there are no unvisited cells
+            // (Step 4) Keep traversing the maze until there are no unvisited cells
             while (numNormalCellsUnvisited > 0) {
+
+                // (Step 3) Keep doing step 2 until no more unvisited neighbours
                 while (thereAreUnvisitedNeighbors) {
 
-                    // List all unvisited neighbors
+                    // (Step 2) List all unvisited neighbors
                     ArrayList<Integer> unvisitedNeighbors = new ArrayList<>();
                     for (int i = 0; i < Maze.NUM_DIR; i++) {
                         Cell currentNeighbor = currentCell.neigh[i];
@@ -57,11 +81,11 @@ public class RecursiveBacktrackerSolver implements MazeSolver {
                         }
                     }
 
-                    // Randomly pick an unvisited neighbour
+                    // (Step 2) Randomly pick an unvisited neighbour
                     if (unvisitedNeighbors.size() > 0) {
                         randomNeighbor = unvisitedNeighbors.get(mRandGen.nextInt(unvisitedNeighbors.size()));
 
-                        // Move to the random unvisited neighbor
+                        // (Step 2) Move to the random unvisited neighbor
                         previousCell.add(currentCell);
                         currentCell = currentCell.neigh[randomNeighbor];
                         maze.drawFtPrt(currentCell);
@@ -84,12 +108,12 @@ public class RecursiveBacktrackerSolver implements MazeSolver {
                     }
                 }
 
-                // Backtrack to the previous cell
+                // (Step 3) Backtrack to the previous cell
                 if (previousCell.size() > 0) {
                     currentCell = previousCell.pop();
                 }
 
-                // Assume unvisited neighbors at the previous cell
+                // (Step 3) Assume unvisited neighbors at the previous cell
                 thereAreUnvisitedNeighbors = true;
             }
 
@@ -114,7 +138,7 @@ public class RecursiveBacktrackerSolver implements MazeSolver {
             // Set the number of cells still to visit
             numHexCellsUnvisited = validCells.size();
 
-            // Start at entrance
+            // (Step 1) Start at entrance
             Cell currentCell = maze.entrance;
 
             // Mark starting cell as visited
@@ -122,11 +146,13 @@ public class RecursiveBacktrackerSolver implements MazeSolver {
             numHexCellsUnvisited--;
             maze.drawFtPrt(currentCell);
 
-            // Keep traversing the maze until there are no unvisited cells
+            // (Step 4) Keep traversing the maze until there are no unvisited cells
             while (numHexCellsUnvisited > 0) {
+
+                // (Step 3) Keep doing step 2 until no more unvisited neighbours
                 while (thereAreUnvisitedNeighbors) {
 
-                    // List all unvisited neighbors
+                    // (Step 2) List all unvisited neighbors
                     ArrayList<Integer> unvisitedNeighbors = new ArrayList<>();
                     for (int i = 0; i < Maze.NUM_DIR; i++) {
                         Cell currentNeighbor = currentCell.neigh[i];
@@ -136,11 +162,11 @@ public class RecursiveBacktrackerSolver implements MazeSolver {
                         }
                     }
 
-                    // Randomly pick an unvisited neighbour
+                    // (Step 2) Randomly pick an unvisited neighbour
                     if (unvisitedNeighbors.size() > 0) {
                         randomNeighbor = unvisitedNeighbors.get(mRandGen.nextInt(unvisitedNeighbors.size()));
 
-                        // Move to the random unvisited neighbor
+                        // (Step 2) Move to the random unvisited neighbor
                         previousCell.add(currentCell);
                         currentCell = currentCell.neigh[randomNeighbor];
                         maze.drawFtPrt(currentCell);
@@ -163,12 +189,12 @@ public class RecursiveBacktrackerSolver implements MazeSolver {
                     }
                 }
 
-                // Backtrack to the previous cell
+                // (Step 3) Backtrack to the previous cell
                 if (previousCell.size() > 0) {
                     currentCell = previousCell.pop();
                 }
 
-                // Assume unvisited neighbors at the previous cell
+                // (Step 3) Assume unvisited neighbors at the previous cell
                 thereAreUnvisitedNeighbors = true;
             }
 
@@ -176,7 +202,7 @@ public class RecursiveBacktrackerSolver implements MazeSolver {
             isSolved();
         } else if (mMaze.type == Maze.TUNNEL) {
 
-            // Start at entrance
+            // (Step 1) Start at entrance
             Cell currentCell = maze.entrance;
 
             // Mark starting cell as visited
@@ -184,11 +210,13 @@ public class RecursiveBacktrackerSolver implements MazeSolver {
             numNormalCellsUnvisited--;
             maze.drawFtPrt(currentCell);
 
-            // Keep traversing the maze until there are no unvisited cells
+            // (Step 4) Keep traversing the maze until there are no unvisited cells
             while (numNormalCellsUnvisited > 0) {
+
+                // (Step 3) Keep doing step 2 until no more unvisited neighbours
                 while (thereAreUnvisitedNeighbors) {
 
-                    // List all unvisited neighbors
+                    // (Step 2) List all unvisited neighbors
                     ArrayList<Integer> unvisitedNeighbors = new ArrayList<>();
                     for (int i = 0; i < Maze.NUM_DIR; i++) {
                         Cell currentNeighbor = currentCell.neigh[i];
@@ -205,11 +233,11 @@ public class RecursiveBacktrackerSolver implements MazeSolver {
                         unvisitedNeighbors.add(6);
                     }
 
-                    // Randomly pick an unvisited neighbour
+                    // (Step 2) Randomly pick an unvisited neighbour
                     if (unvisitedNeighbors.size() > 0) {
                         randomNeighbor = unvisitedNeighbors.get(mRandGen.nextInt(unvisitedNeighbors.size()));
 
-                        // Move to the random unvisited neighbor
+                        // (Step 2) Move to the random unvisited neighbor
                         if (randomNeighbor != 6) {
                             previousCell.add(currentCell);
                             currentCell = currentCell.neigh[randomNeighbor];
@@ -238,12 +266,12 @@ public class RecursiveBacktrackerSolver implements MazeSolver {
                     }
                 }
 
-                // Backtrack to the previous cell
+                // (Step 3) Backtrack to the previous cell
                 if (previousCell.size() > 0) {
                     currentCell = previousCell.pop();
                 }
 
-                // Assume unvisited neighbors at the previous cell
+                // (Step 3) Assume unvisited neighbors at the previous cell
                 thereAreUnvisitedNeighbors = true;
             }
 
